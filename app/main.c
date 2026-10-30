@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <time.h>
 #include "adc.h"
+#include "sampler.h"
 
-#define LIGHT_CHANNEL 2
-#define ADC_VREF_V 3.3
-#define ADC_FULL_SCALE 4096.0
-#define DELAY_MS 100
+#define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
+#define MS_PER_S 1000
 
 int main(void) {
 
@@ -15,18 +14,17 @@ int main(void) {
         return 1;
     }
 
+    Sampler_init();
+
     while(1) {
-        struct timespec delay = {0, DELAY_MS * NS_PER_MS}; // DELAY_MS converted to ns
+        struct timespec delay = {
+            ANALYSIS_PERIOD_MS / MS_PER_S, // whole seconds: 1000/1000 = 1
+            (ANALYSIS_PERIOD_MS % MS_PER_S) * NS_PER_MS // left over ms to ns: 1000 % 1000 = 0
+        }; 
         nanosleep(&delay, NULL);
 
-        int reading = Adc_read(LIGHT_CHANNEL);
-        if (reading < 0) {
-            fprintf(stderr, "Adc_read failed\n");
-            continue;
-        }
+        Sampler_moveCurrentToHistory();
 
-        double voltage = (reading * ADC_VREF_V)/(ADC_FULL_SCALE);
-
-        printf("reading = %4d   voltage = %.3f V\n", reading, voltage);
+        printf("History Size: %d, Average Voltage: %.3f V, Total Samples: %lld\n", Sampler_getHistorySize(), Sampler_getAverage(), Sampler_getTotalSamples());
     }
 }
