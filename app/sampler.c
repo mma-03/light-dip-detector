@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 // constants
 #define LIGHT_CHANNEL 2
@@ -107,8 +108,24 @@ void Sampler_moveCurrentToHistory(void) {
 }
 
 double *Sampler_getHistory(int *size) {
-    *size = 0;
-    return NULL;
+    double *history = malloc(MAX_SAMPLES_PER_SECOND * sizeof(double));
+    if (history == NULL) {
+        fprintf(stderr, "History: Out of memory\n");
+        *size = 0;
+        return NULL;
+    }
+
+    pthread_mutex_lock(&s_lock);
+
+    for(int i = 0; i < s_historySize; i++) {
+        history[i] = s_history[i];
+    }
+
+    *size = s_historySize;
+
+    pthread_mutex_unlock(&s_lock);
+
+    return history;
 }
 
 double Sampler_getAverage(void) {

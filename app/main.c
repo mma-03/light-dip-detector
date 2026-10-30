@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
 #include "adc.h"
 #include "sampler.h"
 
@@ -18,13 +19,21 @@ int main(void) {
 
     while(1) {
         struct timespec delay = {
-            ANALYSIS_PERIOD_MS / MS_PER_S, // whole seconds: 1000/1000 = 1
-            (ANALYSIS_PERIOD_MS % MS_PER_S) * NS_PER_MS // left over ms to ns: 1000 % 1000 = 0
+            ANALYSIS_PERIOD_MS / MS_PER_S, // whole seconds
+            (ANALYSIS_PERIOD_MS % MS_PER_S) * NS_PER_MS // left over ms to ns
         }; 
         nanosleep(&delay, NULL);
 
         Sampler_moveCurrentToHistory();
 
         printf("History Size: %d, Average Voltage: %.3f V, Total Samples: %lld\n", Sampler_getHistorySize(), Sampler_getAverage(), Sampler_getTotalSamples());
+
+        int size;
+        double *history = Sampler_getHistory(&size);
+        if (history != NULL && size > 0) {
+            printf(" first sample: %.3f V, last sample: %.3f V\n", history[0], history[size - 1]);
+        }
+
+        free(history);
     }
 }
