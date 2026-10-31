@@ -4,6 +4,7 @@
 #include "adc.h"
 #include "sampler.h"
 #include "periodTimer.h"
+#include "dip.h"
 
 #define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
@@ -36,6 +37,11 @@ int main(void) {
 
         int size;
         double *history = Sampler_getHistory(&size);
+        double avg = Sampler_getAverage();
+
+        int dipCount = Dip_countDips(history, size, avg);
+        printf("dips: %d\n", dipCount);
+
         free(history);
     }
 }
