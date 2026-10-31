@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "adc.h"
 #include "sampler.h"
+#include "periodTimer.h"
 
 #define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
@@ -15,6 +16,7 @@ int main(void) {
         return 1;
     }
 
+    Period_init();
     Sampler_init();
 
     while(1) {
@@ -26,14 +28,14 @@ int main(void) {
 
         Sampler_moveCurrentToHistory();
 
+        Period_statistics_t stats;
+        Period_getStatisticsAndClear(PERIOD_EVENT_SAMPLE_LIGHT, &stats);
+
         printf("History Size: %d, Average Voltage: %.3f V, Total Samples: %lld\n", Sampler_getHistorySize(), Sampler_getAverage(), Sampler_getTotalSamples());
+        printf("Smpl ms[%.3f, %.3f] avg %.3f/%d\n", stats.minPeriodInMs, stats.maxPeriodInMs, stats.avgPeriodInMs, stats.numSamples);
 
         int size;
         double *history = Sampler_getHistory(&size);
-        if (history != NULL && size > 0) {
-            printf(" first sample: %.3f V, last sample: %.3f V\n", history[0], history[size - 1]);
-        }
-
         free(history);
     }
 }

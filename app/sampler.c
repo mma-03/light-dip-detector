@@ -1,5 +1,6 @@
 #include "sampler.h"
 #include "adc.h"
+#include "periodTimer.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -78,6 +79,8 @@ static void *samplerThread(void *arg) {
             s_totalSamples++;
 
             pthread_mutex_unlock(&s_lock);
+
+            Period_markEvent(PERIOD_EVENT_SAMPLE_LIGHT);
         }
 
         struct timespec delay = {0, SAMPLE_PERIOD_MS * NS_PER_MS};
