@@ -9,9 +9,21 @@
 #define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
 #define MS_PER_S 1000
+#define NUM_SAMPLES_TO_SHOW 10
+
+static void printStatus(const double *history, int size, int flashHz, double avg, int dipCount, const Period_statistics_t *stats) {
+    printf("#Smpl/s = %4d Flash @ %3dHz avg = %6.3fV dips = %3d Smpl ms[%6.3f, %6.3f] avg %6.3f/%4d\n", size, flashHz, avg, dipCount, stats->minPeriodInMs, stats->maxPeriodInMs, stats->avgPeriodInMs, stats->numSamples);
+    
+    int count = (size < NUM_SAMPLES_TO_SHOW) ? size : NUM_SAMPLES_TO_SHOW;
+    for(int i = 0; i < count; i++) {
+        int index = i * size / count;
+        printf("%4d:%6.3f  ", index, history[index]);
+    }
+    printf("\n");
+}
 
 int main(void) {
-
+    
     if(!Adc_init()) {
         fprintf(stderr, "Adc_init failed\n");
         return 1;
@@ -19,6 +31,8 @@ int main(void) {
 
     Period_init();
     Sampler_init();
+
+    int flashHz = 0; // temporary, LED module will provide later
 
     while(1) {
         struct timespec delay = {
@@ -32,15 +46,13 @@ int main(void) {
         Period_statistics_t stats;
         Period_getStatisticsAndClear(PERIOD_EVENT_SAMPLE_LIGHT, &stats);
 
-        printf("History Size: %d, Average Voltage: %.3f V, Total Samples: %lld\n", Sampler_getHistorySize(), Sampler_getAverage(), Sampler_getTotalSamples());
-        printf("Smpl ms[%.3f, %.3f] avg %.3f/%d\n", stats.minPeriodInMs, stats.maxPeriodInMs, stats.avgPeriodInMs, stats.numSamples);
-
         int size;
         double *history = Sampler_getHistory(&size);
         double avg = Sampler_getAverage();
 
         int dipCount = Dip_countDips(history, size, avg);
-        printf("dips: %d\n", dipCount);
+
+        printStatus(history, size, flashHz, avg, dipCount, &stats);
 
         free(history);
     }
