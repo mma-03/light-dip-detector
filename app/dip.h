@@ -13,4 +13,7 @@ The count continues a dip that was in progress at the end of the last call and i
 // the samples (history array), how many there are (size), and the average to measure from
 int Dip_countDips (const double *samples, int size, double avg);
 
+// returns the last count safe from any thread
+int Dip_getLastCount(void);
+
 #endif

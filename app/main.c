@@ -5,6 +5,7 @@
 #include "sampler.h"
 #include "periodTimer.h"
 #include "dip.h"
+#include "udpServer.h"
 
 #define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
@@ -32,9 +33,17 @@ int main(void) {
     Period_init();
     Sampler_init();
 
+    if (!UdpServer_init()) {
+        fprintf(stderr, "UdpServer_init failed\n");
+        Sampler_cleanup();
+        Period_cleanup();
+        Adc_cleanup();
+        return 1;
+    }
+
     int flashHz = 0; // temporary, LED module will provide later
 
-    while(1) {
+    while(!UdpServer_isStopRequested()) {
         struct timespec delay = {
             ANALYSIS_PERIOD_MS / MS_PER_S, // whole seconds
             (ANALYSIS_PERIOD_MS % MS_PER_S) * NS_PER_MS // left over ms to ns
@@ -56,4 +65,11 @@ int main(void) {
 
         free(history);
     }
+
+    UdpServer_cleanup();
+    Sampler_cleanup();
+    Period_cleanup();
+    Adc_cleanup();
+
+    return 0;
 }
