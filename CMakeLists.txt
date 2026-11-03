@@ -6,6 +6,7 @@ add_compile_options(-Wall -Wextra -Wpedantic -Werror  -g)
 
 file(GLOB SOURCES CONFIGURE_DEPENDS app/*.c hal/*.c)
 add_executable(light_sampler ${SOURCES})
+target_link_libraries(light_sampler gpiod)
 target_include_directories(light_sampler PRIVATE app hal)
 
 add_custom_command(TARGET light_sampler POST_BUILD
