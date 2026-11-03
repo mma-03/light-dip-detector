@@ -10,5 +10,5 @@ target_link_libraries(light_sampler gpiod)
 target_include_directories(light_sampler PRIVATE app hal)
 
 add_custom_command(TARGET light_sampler POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:light_sampler>
-$ENV{HOME}/ensc351/public/myApps/)
+	COMMAND ${CMAKE_COMMAND} -E make_directory $ENV{HOME}/ensc351/public/myApps
+	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:light_sampler> $ENV{HOME}/ensc351/public/myApps/)

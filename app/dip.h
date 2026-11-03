@@ -1,5 +1,5 @@
 /*
-interface for app/dip.c
+Counts light dips in a second of samples, using a threshold with hysteresis
 A dip is when the voltage (light level) drops below a certain threshold 
 Dip threshold = average - 0.10 V (dropping below this counts as a dip)
 Re-arm level = average - 0.07 V (after a dip, the light must rise above this level before another dip is counted)
