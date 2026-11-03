@@ -8,6 +8,8 @@
 #include "udpServer.h"
 #include "led.h"
 #include "flasher.h"
+#include "encoder.h"
+#include "knob.h"
 
 #define ANALYSIS_PERIOD_MS 1000
 #define NS_PER_MS 1000000L
@@ -33,23 +35,33 @@ int main(void) {
         return 1;
     }
 
-        if (!Led_init()) {
+    if (!Led_init()) {
         fprintf(stderr, "Led_init failed\n");
         Adc_cleanup();
         return 1;
     }
 
+    if (!Encoder_init()) {
+        fprintf(stderr, "Encoder_init failed\n");
+        Led_cleanup();
+        Adc_cleanup();
+        return 1;
+    }
+    
     Period_init();
     Sampler_init();
     Flasher_init();
+    Knob_init();
 
     if (!UdpServer_init()) {
         fprintf(stderr, "UdpServer_init failed\n");
+        Knob_cleanup();
         Flasher_cleanup();
         Sampler_cleanup();
         Period_cleanup();
-        Adc_cleanup();
+        Encoder_cleanup();
         Led_cleanup();
+        Adc_cleanup();
         return 1;
     }
 
@@ -79,11 +91,13 @@ int main(void) {
     }
 
     UdpServer_cleanup();
+    Knob_cleanup();
     Flasher_cleanup();
     Sampler_cleanup();
     Period_cleanup();
-    Adc_cleanup();
+    Encoder_cleanup();
     Led_cleanup();
+    Adc_cleanup();
 
     return 0;
 }
