@@ -35,6 +35,7 @@ int Dip_countDips(const double *samples, int size, double avg) {
 
 int Dip_getLastCount(void) {
     pthread_mutex_lock(&s_lock);
-    return s_lastDip;
+    int lastDip = s_lastDip;
     pthread_mutex_unlock(&s_lock);
+    return lastDip;
 }
