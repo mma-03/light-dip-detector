@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../scratch"
+		},
+		{
+			"path": "../../as2-provided"
+		},
+		{
+			"path": "../../noworky"
+		}
+	],
+	"settings": {}
+}
